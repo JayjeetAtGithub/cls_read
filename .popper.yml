@@ -1,0 +1,19 @@
+steps:
+- id: build
+  uses: ./docker/builder
+  runs: [bash, -euxc]
+  args:
+  - |
+    mkdir -p build/
+    cd build/
+    cmake ..
+    make VERBOSE=1
+
+- id: test
+  uses: ./docker/builder
+  runs: [bash, -euxc]
+  args:
+  - |
+    cp build/lib/libcls_cls_sdk.so* /usr/lib64/rados-classes/
+    scripts/micro-osd.sh test-cluster /etc/ceph
+    build/bin/cls_sdk_test
